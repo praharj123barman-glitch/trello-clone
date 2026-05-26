@@ -1,7 +1,6 @@
 "use client";
 
 import { Draggable } from "@hello-pangea/dnd";
-import { AlignLeft, CheckSquare, Clock } from "lucide-react";
 import { useCardModal } from "@/store/use-card-modal";
 
 interface Label {
@@ -54,6 +53,9 @@ export function CardItem({ card, index }: CardItemProps) {
   const isOverdue =
     card.dueDate && !card.completed && new Date(card.dueDate) < new Date();
 
+  const progress =
+    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided, snapshot) => (
@@ -62,17 +64,18 @@ export function CardItem({ card, index }: CardItemProps) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => cardModal.onOpen(card.id)}
-          className={`bg-white rounded-lg shadow-sm border border-gray-200 p-2.5 mb-1.5 cursor-pointer hover:border-blue-400 transition-all group ${
-            snapshot.isDragging ? "shadow-lg rotate-2 scale-105" : ""
-          }`}
+          className={`glass-card rounded-lg p-3 mb-2 cursor-pointer group ${
+            snapshot.isDragging
+              ? "shadow-2xl ring-1 ring-[var(--color-primary)]/40 rotate-1"
+              : ""
+          } ${card.completed ? "opacity-65" : ""}`}
         >
-          {/* Labels */}
           {card.labels.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-1.5">
+            <div className="flex flex-wrap gap-1 mb-2">
               {card.labels.map((label) => (
                 <span
                   key={label.id}
-                  className="h-2 w-10 rounded-full"
+                  className="h-1.5 w-10 rounded-full"
                   style={{ backgroundColor: label.color }}
                   title={label.name}
                 />
@@ -80,23 +83,38 @@ export function CardItem({ card, index }: CardItemProps) {
             </div>
           )}
 
-          {/* Title */}
-          <p className="text-sm text-gray-700 leading-snug">{card.title}</p>
+          <p
+            className={`text-[14px] leading-snug text-[var(--color-on-surface)] ${
+              card.completed ? "line-through text-[var(--color-on-surface-variant)]" : ""
+            }`}
+          >
+            {card.title}
+          </p>
 
-          {/* Badges */}
+          {totalItems > 0 && (
+            <div className="mt-2.5">
+              <div className="w-full bg-[var(--color-surface-container-high)] h-1 rounded-full overflow-hidden">
+                <div
+                  className="bg-[var(--color-primary)] h-full rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {(card.description || totalItems > 0 || card.dueDate) && (
-            <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+            <div className="flex items-center gap-3 mt-2.5 flex-wrap">
               {card.dueDate && (
                 <span
-                  className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded ${
+                  className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full ${
                     card.completed
-                      ? "bg-green-100 text-green-700"
+                      ? "bg-[var(--color-secondary)]/15 text-[var(--color-secondary)] border border-[var(--color-secondary)]/30"
                       : isOverdue
-                        ? "bg-red-100 text-red-600"
-                        : "text-gray-500"
+                      ? "bg-[var(--color-error)]/15 text-[var(--color-error)] border border-[var(--color-error)]/30"
+                      : "text-[var(--color-on-surface-variant)]"
                   }`}
                 >
-                  <Clock className="w-3 h-3" />
+                  <span className="material-symbols-outlined text-[12px]">schedule</span>
                   {new Date(card.dueDate).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -105,18 +123,20 @@ export function CardItem({ card, index }: CardItemProps) {
               )}
 
               {card.description && (
-                <AlignLeft className="w-3.5 h-3.5 text-gray-400" />
+                <span className="material-symbols-outlined text-[14px] text-[var(--color-on-surface-variant)]">
+                  notes
+                </span>
               )}
 
               {totalItems > 0 && (
                 <span
-                  className={`flex items-center gap-1 text-xs ${
+                  className={`flex items-center gap-1 text-[11px] font-mono ${
                     completedItems === totalItems
-                      ? "text-green-600"
-                      : "text-gray-500"
+                      ? "text-[var(--color-secondary)]"
+                      : "text-[var(--color-on-surface-variant)]"
                   }`}
                 >
-                  <CheckSquare className="w-3 h-3" />
+                  <span className="material-symbols-outlined text-[12px]">check_box</span>
                   {completedItems}/{totalItems}
                 </span>
               )}

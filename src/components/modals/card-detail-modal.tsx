@@ -2,15 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  X,
-  AlignLeft,
-  Tag,
-  Clock,
-  CheckSquare,
-  Trash2,
-  Plus,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LABEL_COLORS } from "@/lib/utils";
 
@@ -49,6 +40,10 @@ interface CardDetail {
 interface CardDetailModalProps {
   cardId: string;
   onClose: () => void;
+}
+
+function Icon({ name, className = "" }: { name: string; className?: string }) {
+  return <span className={`material-symbols-outlined ${className}`}>{name}</span>;
 }
 
 export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
@@ -173,9 +168,7 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
       if (res.ok) {
         const checklist = await res.json();
         setCard((prev) =>
-          prev
-            ? { ...prev, checklists: [...prev.checklists, checklist] }
-            : null
+          prev ? { ...prev, checklists: [...prev.checklists, checklist] } : null
         );
         setNewChecklistTitle("");
         setShowAddChecklist(false);
@@ -255,9 +248,7 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
                   ? {
                       ...c,
                       items: c.items.map((i) =>
-                        i.id === itemId
-                          ? { ...i, completed: !completed }
-                          : i
+                        i.id === itemId ? { ...i, completed: !completed } : i
                       ),
                     }
                   : c
@@ -270,10 +261,7 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
     }
   };
 
-  const deleteChecklistItem = async (
-    checklistId: string,
-    itemId: string
-  ) => {
+  const deleteChecklistItem = async (checklistId: string, itemId: string) => {
     try {
       await fetch("/api/checklist-items", {
         method: "DELETE",
@@ -309,8 +297,8 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
-        <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--color-background)]/80 backdrop-blur-sm">
+        <div className="w-9 h-9 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -318,103 +306,93 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
   if (!card) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-12 pb-12 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-10 pb-10 overflow-y-auto px-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50"
+        className="fixed inset-0 bg-[var(--color-background)]/80 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative bg-gray-50 rounded-2xl shadow-2xl w-full max-w-2xl mx-4"
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", duration: 0.4 }}
+        className="relative glass-panel rounded-2xl shadow-2xl w-full max-w-3xl"
       >
-        {/* Header */}
-        <div className="p-6 pb-4">
+        <div className="p-7 pb-4 border-b border-[var(--color-outline-variant)]/15">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+            className="absolute top-4 right-4 grid place-items-center w-8 h-8 rounded-lg text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)] hover:bg-[var(--color-surface-container-high)] transition-colors"
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <Icon name="close" className="text-[18px]" />
           </button>
 
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={updateTitle}
-            onKeyDown={(e) => e.key === "Enter" && updateTitle()}
-            className="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none w-full focus:bg-white focus:px-2 focus:py-1 focus:rounded-lg focus:ring-2 focus:ring-blue-500/50 transition-all"
+            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            className="font-display font-semibold text-[22px] text-[var(--color-on-surface)] bg-transparent border-none outline-none w-full pr-8 focus:bg-[var(--color-surface-container-low)] focus:px-3 focus:py-1 focus:rounded-lg focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-all tracking-[-0.01em]"
           />
-          <p className="text-sm text-gray-500 mt-1">
-            in list <span className="font-medium">{card.list.title}</span>
+          <p className="text-[12px] font-mono uppercase tracking-[0.14em] text-[var(--color-on-surface-variant)] mt-2 flex items-center gap-1.5">
+            <Icon name="view_column" className="text-[14px]" />
+            in list <span className="text-[var(--color-primary)]">{card.list.title}</span>
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 px-6 pb-6">
-          {/* Main content */}
-          <div className="flex-1 space-y-6">
-            {/* Labels */}
+        <div className="flex flex-col lg:flex-row gap-6 px-7 py-6">
+          <div className="flex-1 space-y-7 min-w-0">
             {card.labels.length > 0 && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-on-surface-variant)] mb-3 flex items-center gap-1.5">
+                  <Icon name="sell" className="text-[14px]" />
                   Labels
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {card.labels.map((label) => (
-                    <span
+                    <button
                       key={label.id}
                       onClick={() => removeLabel(label.id)}
-                      className="px-3 py-1 text-xs font-medium text-white rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                      className="group px-3 py-1.5 text-[12px] font-semibold text-white rounded-full hover:opacity-90 hover:scale-[1.03] transition-all flex items-center gap-1.5 shadow-sm"
                       style={{ backgroundColor: label.color }}
                       title={`Click to remove: ${label.name}`}
                     >
                       {label.name}
-                    </span>
+                      <Icon name="close" className="text-[12px] opacity-60 group-hover:opacity-100 transition-opacity" />
+                    </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Due date display */}
             {card.dueDate && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                  Due Date
+                <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-on-surface-variant)] mb-3 flex items-center gap-1.5">
+                  <Icon name="schedule" className="text-[14px]" />
+                  Due date
                 </h4>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={toggleCompleted}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                    className={`grid place-items-center w-5 h-5 rounded border-2 transition-all ${
                       card.completed
-                        ? "bg-green-500 border-green-500"
-                        : "border-gray-300 hover:border-gray-400"
+                        ? "bg-[var(--color-secondary)] border-[var(--color-secondary)]"
+                        : "border-[var(--color-outline-variant)] hover:border-[var(--color-primary)]"
                     }`}
                   >
                     {card.completed && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Icon name="check" className="text-[14px] text-[var(--color-on-secondary)]" />
                     )}
                   </button>
                   <span
-                    className={`text-sm px-2 py-1 rounded ${
+                    className={`text-[13px] px-3 py-1 rounded-full ${
                       card.completed
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-[var(--color-secondary)]/15 text-[var(--color-secondary)] border border-[var(--color-secondary)]/30"
                         : new Date(card.dueDate) < new Date()
-                          ? "bg-red-100 text-red-600"
-                          : "bg-gray-100 text-gray-700"
+                        ? "bg-[var(--color-error)]/15 text-[var(--color-error)] border border-[var(--color-error)]/30"
+                        : "bg-[var(--color-surface-container-high)] text-[var(--color-on-surface)]"
                     }`}
                   >
                     {new Date(card.dueDate).toLocaleDateString("en-US", {
@@ -422,27 +400,24 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
                       month: "short",
                       day: "numeric",
                     })}
-                    {card.completed && " (completed)"}
+                    {card.completed && " · completed"}
                   </span>
                 </div>
               </div>
             )}
 
-            {/* Description */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <AlignLeft className="w-4 h-4 text-gray-500" />
-                <h4 className="text-sm font-semibold text-gray-700">
-                  Description
-                </h4>
-              </div>
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-on-surface-variant)] mb-3 flex items-center gap-1.5">
+                <Icon name="notes" className="text-[14px]" />
+                Description
+              </h4>
               {isEditingDesc ? (
                 <div>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add a more detailed description..."
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 min-h-[100px]"
+                    placeholder="Add a more detailed description…"
+                    className="w-full px-3 py-2.5 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 focus:border-[var(--color-primary)] min-h-[110px] text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/50"
                     autoFocus
                   />
                   <div className="flex gap-2 mt-2">
@@ -464,14 +439,17 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
               ) : (
                 <div
                   onClick={() => setIsEditingDesc(true)}
-                  className="text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 min-h-[60px] cursor-pointer transition-colors whitespace-pre-wrap"
+                  className="text-[14px] leading-[1.65] text-[var(--color-on-surface)] bg-[var(--color-surface-container-low)] hover:bg-[var(--color-surface-container)] rounded-lg px-3 py-3 min-h-[60px] cursor-text transition-colors whitespace-pre-wrap"
                 >
-                  {description || "Add a more detailed description..."}
+                  {description || (
+                    <span className="text-[var(--color-on-surface-variant)] italic">
+                      Add a more detailed description…
+                    </span>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Checklists */}
             {card.checklists.map((checklist) => {
               const total = checklist.items.length;
               const done = checklist.items.filter((i) => i.completed).length;
@@ -479,80 +457,62 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
 
               return (
                 <div key={checklist.id}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <CheckSquare className="w-4 h-4 text-gray-500" />
-                      <h4 className="text-sm font-semibold text-gray-700">
-                        {checklist.title}
-                      </h4>
-                    </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-[13px] font-semibold text-[var(--color-on-surface)] flex items-center gap-2">
+                      <Icon name="check_box" className="text-[16px] text-[var(--color-primary)]" />
+                      {checklist.title}
+                    </h4>
                     <button
                       onClick={() => deleteChecklist(checklist.id)}
-                      className="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-on-surface-variant)] hover:text-[var(--color-error)] px-2 py-1 rounded hover:bg-[var(--color-error)]/10 transition-colors"
                     >
                       Delete
                     </button>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs text-gray-500 w-8">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-[11px] font-mono text-[var(--color-on-surface-variant)] w-10">
                       {percent}%
                     </span>
-                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1.5 bg-[var(--color-surface-container-high)] rounded-full overflow-hidden">
                       <motion.div
                         className={`h-full rounded-full ${
-                          percent === 100 ? "bg-green-500" : "bg-blue-500"
+                          percent === 100
+                            ? "bg-[var(--color-secondary)]"
+                            : "bg-[var(--color-primary)]"
                         }`}
                         initial={{ width: 0 }}
                         animate={{ width: `${percent}%` }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.4 }}
                       />
                     </div>
                   </div>
 
-                  {/* Items */}
                   <div className="space-y-1">
                     {checklist.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-2 group/item px-1 py-1 rounded hover:bg-gray-100"
+                        className="flex items-center gap-3 group/item px-2 py-1.5 rounded hover:bg-[var(--color-surface-container-high)] transition-colors"
                       >
                         <button
                           onClick={() =>
-                            toggleChecklistItem(
-                              checklist.id,
-                              item.id,
-                              item.completed
-                            )
+                            toggleChecklistItem(checklist.id, item.id, item.completed)
                           }
-                          className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+                          className={`grid place-items-center w-4 h-4 rounded border-2 flex-shrink-0 transition-all ${
                             item.completed
-                              ? "bg-blue-500 border-blue-500"
-                              : "border-gray-300"
+                              ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
+                              : "border-[var(--color-outline-variant)] hover:border-[var(--color-primary)]"
                           }`}
                         >
                           {item.completed && (
-                            <svg
-                              className="w-2.5 h-2.5 text-white"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={3}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <Icon name="check" className="text-[12px] text-[var(--color-on-primary)]" />
                           )}
                         </button>
                         <span
-                          className={`text-sm flex-1 ${
+                          className={`text-[14px] flex-1 ${
                             item.completed
-                              ? "line-through text-gray-400"
-                              : "text-gray-700"
+                              ? "line-through text-[var(--color-on-surface-variant)]"
+                              : "text-[var(--color-on-surface)]"
                           }`}
                         >
                           {item.text}
@@ -561,16 +521,15 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
                           onClick={() =>
                             deleteChecklistItem(checklist.id, item.id)
                           }
-                          className="opacity-0 group-hover/item:opacity-100 text-gray-400 hover:text-red-500 p-0.5 cursor-pointer"
+                          className="opacity-0 group-hover/item:opacity-100 text-[var(--color-on-surface-variant)] hover:text-[var(--color-error)] p-1 transition-opacity"
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <Icon name="close" className="text-[14px]" />
                         </button>
                       </div>
                     ))}
                   </div>
 
-                  {/* Add item */}
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-3">
                     <input
                       value={newItemTexts[checklist.id] || ""}
                       onChange={(e) =>
@@ -582,14 +541,14 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
                       onKeyDown={(e) =>
                         e.key === "Enter" && addChecklistItem(checklist.id)
                       }
-                      placeholder="Add an item..."
-                      className="flex-1 px-2 py-1 text-sm bg-transparent border-b border-gray-200 focus:border-blue-400 outline-none"
+                      placeholder="Add an item…"
+                      className="flex-1 px-3 py-2 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 focus:border-[var(--color-primary)] text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/50"
                     />
                     <button
                       onClick={() => addChecklistItem(checklist.id)}
-                      className="text-blue-500 hover:text-blue-600 p-1 cursor-pointer"
+                      className="grid place-items-center w-9 h-9 rounded-lg bg-[var(--color-primary)]/15 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/25 transition-colors"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Icon name="add" className="text-[18px]" />
                     </button>
                   </div>
                 </div>
@@ -597,117 +556,121 @@ export function CardDetailModal({ cardId, onClose }: CardDetailModalProps) {
             })}
           </div>
 
-          {/* Sidebar actions */}
-          <div className="lg:w-44 space-y-2">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <div className="lg:w-48 space-y-2 flex-shrink-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-on-surface-variant)] mb-2">
               Add to card
             </p>
 
-            {/* Labels button */}
             <div className="relative">
               <button
                 onClick={() => setShowLabels(!showLabels)}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+                className="w-full bg-[var(--color-surface-container-high)] hover:bg-[var(--color-surface-container-highest)] text-[var(--color-on-surface)] text-[12px] font-semibold uppercase tracking-[0.08em] px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
-                <Tag className="w-4 h-4" />
+                <Icon name="sell" className="text-[16px] text-[var(--color-primary)]" />
                 Labels
               </button>
               {showLabels && (
-                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 p-3 w-56 z-50">
-                  <p className="text-xs font-semibold text-gray-500 mb-2">
-                    Select a label
-                  </p>
-                  <div className="space-y-1">
-                    {LABEL_COLORS.map((lc) => (
-                      <button
-                        key={lc.value}
-                        onClick={() => {
-                          addLabel(lc.name, lc.value);
-                          setShowLabels(false);
-                        }}
-                        className="w-full h-8 rounded-md text-white text-xs font-medium flex items-center px-3 hover:opacity-80 transition-opacity cursor-pointer"
-                        style={{ backgroundColor: lc.value }}
-                      >
-                        {lc.name}
-                      </button>
-                    ))}
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowLabels(false)} />
+                  <div className="absolute top-full mt-2 right-0 z-40 glass-panel rounded-xl p-3 w-60 shadow-2xl">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-on-surface-variant)] mb-2">
+                      Select a label
+                    </p>
+                    <div className="space-y-1">
+                      {LABEL_COLORS.map((lc) => (
+                        <button
+                          key={lc.value}
+                          onClick={() => {
+                            addLabel(lc.name, lc.value);
+                            setShowLabels(false);
+                          }}
+                          className="w-full h-9 rounded-md text-white text-[12px] font-semibold flex items-center px-3 hover:opacity-90 hover:scale-[1.01] transition-all"
+                          style={{ backgroundColor: lc.value }}
+                        >
+                          {lc.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
-            {/* Due date button */}
             <div className="relative">
               <button
                 onClick={() => setShowDueDate(!showDueDate)}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+                className="w-full bg-[var(--color-surface-container-high)] hover:bg-[var(--color-surface-container-highest)] text-[var(--color-on-surface)] text-[12px] font-semibold uppercase tracking-[0.08em] px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
-                <Clock className="w-4 h-4" />
-                Due Date
+                <Icon name="schedule" className="text-[16px] text-[var(--color-primary)]" />
+                Due date
               </button>
               {showDueDate && (
-                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 p-3 w-56 z-50">
-                  <input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg mb-2"
-                  />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={setCardDueDate}>
-                      Save
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setDueDate("");
-                        updateCard({ dueDate: null });
-                        setShowDueDate(false);
-                      }}
-                    >
-                      Remove
-                    </Button>
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowDueDate(false)} />
+                  <div className="absolute top-full mt-2 right-0 z-40 glass-panel rounded-xl p-3 w-60 shadow-2xl">
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full px-3 py-2 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg mb-3 text-[var(--color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={setCardDueDate}>
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setDueDate("");
+                          updateCard({ dueDate: null });
+                          setShowDueDate(false);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
-            {/* Checklist button */}
             <div className="relative">
               <button
                 onClick={() => setShowAddChecklist(!showAddChecklist)}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+                className="w-full bg-[var(--color-surface-container-high)] hover:bg-[var(--color-surface-container-highest)] text-[var(--color-on-surface)] text-[12px] font-semibold uppercase tracking-[0.08em] px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
-                <CheckSquare className="w-4 h-4" />
+                <Icon name="check_box" className="text-[16px] text-[var(--color-primary)]" />
                 Checklist
               </button>
               {showAddChecklist && (
-                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 p-3 w-56 z-50">
-                  <input
-                    value={newChecklistTitle}
-                    onChange={(e) => setNewChecklistTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && addChecklist()}
-                    placeholder="Checklist title..."
-                    className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg mb-2"
-                    autoFocus
-                  />
-                  <Button size="sm" onClick={addChecklist}>
-                    Add
-                  </Button>
-                </div>
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowAddChecklist(false)} />
+                  <div className="absolute top-full mt-2 right-0 z-40 glass-panel rounded-xl p-3 w-60 shadow-2xl">
+                    <input
+                      value={newChecklistTitle}
+                      onChange={(e) => setNewChecklistTitle(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addChecklist()}
+                      placeholder="Checklist title…"
+                      className="w-full px-3 py-2 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg mb-3 text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
+                      autoFocus
+                    />
+                    <Button size="sm" onClick={addChecklist} className="w-full">
+                      Add
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
 
-            <hr className="my-3 border-gray-200" />
+            <hr className="my-3 border-[var(--color-outline-variant)]/20" />
 
-            {/* Delete card */}
             <button
               onClick={deleteCard}
-              className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+              className="w-full bg-[var(--color-error)]/10 hover:bg-[var(--color-error)]/20 text-[var(--color-error)] text-[12px] font-semibold uppercase tracking-[0.08em] px-3 py-2 rounded-lg flex items-center gap-2 transition-colors border border-[var(--color-error)]/20"
             >
-              <Trash2 className="w-4 h-4" />
-              Delete Card
+              <Icon name="delete" className="text-[16px]" />
+              Delete card
             </button>
           </div>
         </div>

@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import { MoreHorizontal, Plus, X, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardItem } from "./card-item";
-import { Button } from "@/components/ui/button";
 
 interface Label {
   id: string;
@@ -91,72 +89,84 @@ export function ListColumn({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="shrink-0 w-72"
+          className="shrink-0 w-80"
         >
-          <div className="bg-gray-100 rounded-xl shadow-sm">
-            {/* List header */}
+          <div className="glass-panel rounded-xl flex flex-col max-h-[calc(100vh-11rem)]">
             <div
               {...provided.dragHandleProps}
-              className="flex items-center justify-between px-3 py-2.5"
+              className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-outline-variant)]/15"
             >
-              {isEditingTitle ? (
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onBlur={handleTitleSubmit}
-                  onKeyDown={(e) => e.key === "Enter" && handleTitleSubmit()}
-                  className="flex-1 px-2 py-0.5 text-sm font-semibold bg-white rounded border border-blue-400 outline-none"
-                  autoFocus
-                />
-              ) : (
-                <h3
-                  onClick={() => setIsEditingTitle(true)}
-                  className="text-sm font-semibold text-gray-700 cursor-pointer px-2 py-0.5 rounded hover:bg-gray-200 transition-colors truncate"
-                >
-                  {list.title}
-                </h3>
-              )}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="material-symbols-outlined text-[14px] text-[var(--color-on-surface-variant)] cursor-grab">
+                  drag_indicator
+                </span>
+                {isEditingTitle ? (
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleTitleSubmit}
+                    onKeyDown={(e) => e.key === "Enter" && handleTitleSubmit()}
+                    className="flex-1 px-2 py-1 text-[13px] font-semibold uppercase tracking-[0.1em] bg-[var(--color-surface-container-low)] border border-[var(--color-primary)]/40 rounded outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 text-[var(--color-on-surface)]"
+                    autoFocus
+                  />
+                ) : (
+                  <h3
+                    onClick={() => setIsEditingTitle(true)}
+                    className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[var(--color-on-surface)] cursor-pointer px-2 py-1 rounded hover:bg-[var(--color-surface-container-high)] transition-colors truncate flex-1"
+                  >
+                    {list.title}
+                  </h3>
+                )}
+                <span className="bg-[var(--color-surface-container-high)] px-2 py-0.5 rounded-full text-[10px] font-mono text-[var(--color-on-surface-variant)]">
+                  {list.cards.length}
+                </span>
+              </div>
 
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+                  className="grid place-items-center w-7 h-7 rounded text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-container-high)] transition-colors"
                 >
-                  <MoreHorizontal className="w-4 h-4" />
+                  <span className="material-symbols-outlined text-[16px]">more_horiz</span>
                 </button>
 
                 <AnimatePresence>
                   {showMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-48 z-50"
-                    >
-                      <button
-                        onClick={() => {
-                          setShowMenu(false);
-                          onDeleteList(list.id);
-                        }}
-                        className="w-full px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
+                    <>
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setShowMenu(false)}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                        className="absolute right-0 top-9 z-40 glass-panel rounded-lg py-1 w-48 shadow-2xl"
                       >
-                        <Trash2 className="w-4 h-4" />
-                        Delete list
-                      </button>
-                    </motion.div>
+                        <button
+                          onClick={() => {
+                            setShowMenu(false);
+                            onDeleteList(list.id);
+                          }}
+                          className="w-full px-3 py-2 text-[13px] text-left text-[var(--color-error)] hover:bg-[var(--color-error)]/10 flex items-center gap-2 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                          Delete list
+                        </button>
+                      </motion.div>
+                    </>
                   )}
                 </AnimatePresence>
               </div>
             </div>
 
-            {/* Cards */}
             <Droppable droppableId={list.id} type="card">
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`px-2 pb-1 min-h-[4px] max-h-[calc(100vh-16rem)] overflow-y-auto list-scroll transition-colors rounded-lg mx-1 ${
-                    snapshot.isDraggingOver ? "bg-gray-200/50" : ""
+                  className={`px-3 pt-3 pb-1 flex-1 overflow-y-auto list-scroll transition-colors min-h-[20px] ${
+                    snapshot.isDraggingOver ? "bg-[var(--color-primary)]/[0.06]" : ""
                   }`}
                 >
                   {list.cards.map((card, cardIndex) => (
@@ -167,10 +177,9 @@ export function ListColumn({
               )}
             </Droppable>
 
-            {/* Add card */}
-            <div className="px-2 pb-2">
+            <div className="px-3 pb-3 pt-1">
               {isAddingCard ? (
-                <div className="pt-1">
+                <div>
                   <textarea
                     value={newCardTitle}
                     onChange={(e) => setNewCardTitle(e.target.value)}
@@ -180,32 +189,35 @@ export function ListColumn({
                         handleAddCard();
                       }
                     }}
-                    placeholder="Enter a title for this card..."
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 min-h-[60px]"
+                    placeholder="Enter a title for this card…"
+                    className="w-full px-3 py-2.5 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 focus:border-[var(--color-primary)] min-h-[70px] text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/50"
                     autoFocus
                     rows={2}
                   />
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Button size="sm" onClick={handleAddCard}>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      onClick={handleAddCard}
+                      className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-lg text-[12px] font-semibold uppercase tracking-[0.06em] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                    >
                       Add card
-                    </Button>
+                    </button>
                     <button
                       onClick={() => {
                         setIsAddingCard(false);
                         setNewCardTitle("");
                       }}
-                      className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                      className="grid place-items-center w-9 h-9 rounded-lg text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)] hover:bg-[var(--color-surface-container-high)] transition-colors"
                     >
-                      <X className="w-5 h-5" />
+                      <span className="material-symbols-outlined text-[18px]">close</span>
                     </button>
                   </div>
                 </div>
               ) : (
                 <button
                   onClick={() => setIsAddingCard(true)}
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-[13px] text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-container-high)] rounded-lg flex items-center gap-2 transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
+                  <span className="material-symbols-outlined text-[16px]">add</span>
                   Add a card
                 </button>
               )}

@@ -13,9 +13,13 @@ export default async function DashboardLayout({
 
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        {children}
+      <div className="relative min-h-screen bg-[var(--color-background)]">
+        <div className="absolute inset-0 grid-noise opacity-30 pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[420px] aurora opacity-60 pointer-events-none" />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <Navbar />
+          {children}
+        </div>
       </div>
     </SessionProvider>
   );

@@ -6,9 +6,7 @@ import {
   Droppable,
   type DropResult,
 } from "@hello-pangea/dnd";
-import { Plus, X } from "lucide-react";
 import { ListColumn } from "./list-column";
-import { Button } from "@/components/ui/button";
 
 interface Label {
   id: string;
@@ -60,13 +58,11 @@ interface BoardContentProps {
 export function BoardContent({
   boardId,
   initialLists,
-  onRefresh,
 }: BoardContentProps) {
   const [lists, setLists] = useState<List[]>(initialLists);
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
 
-  // Sync with parent
   useState(() => {
     setLists(initialLists);
   });
@@ -147,7 +143,6 @@ export function BoardContent({
     )
       return;
 
-    // Reordering lists
     if (type === "list") {
       const reordered = [...lists];
       const [removed] = reordered.splice(source.index, 1);
@@ -172,19 +167,17 @@ export function BoardContent({
           }),
         });
       } catch {
-        setLists(lists); // revert
+        setLists(lists);
       }
 
       return;
     }
 
-    // Reordering cards
     const sourceList = lists.find((l) => l.id === source.droppableId);
     const destList = lists.find((l) => l.id === destination.droppableId);
 
     if (!sourceList || !destList) return;
 
-    // Same list
     if (source.droppableId === destination.droppableId) {
       const reorderedCards = [...sourceList.cards];
       const [removed] = reorderedCards.splice(source.index, 1);
@@ -214,10 +207,9 @@ export function BoardContent({
           }),
         });
       } catch {
-        setLists(lists); // revert
+        setLists(lists);
       }
     } else {
-      // Different list
       const sourceCards = [...sourceList.cards];
       const [movedCard] = sourceCards.splice(source.index, 1);
       const destCards = [...destList.cards];
@@ -256,20 +248,20 @@ export function BoardContent({
           }),
         });
       } catch {
-        setLists(lists); // revert
+        setLists(lists);
       }
     }
   };
 
   return (
-    <div className="flex-1 overflow-x-auto board-scroll p-4">
+    <div className="flex-1 overflow-x-auto overflow-y-hidden board-scroll px-5 md:px-10 py-6">
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="lists" type="list" direction="horizontal">
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className="flex gap-4 items-start h-full"
+              className="flex gap-5 items-start h-full min-w-max pb-4"
             >
               {lists.map((list, index) => (
                 <ListColumn
@@ -283,39 +275,41 @@ export function BoardContent({
               ))}
               {provided.placeholder}
 
-              {/* Add list */}
-              <div className="shrink-0 w-72">
+              <div className="shrink-0 w-80">
                 {isAddingList ? (
-                  <div className="bg-white rounded-xl p-3 shadow-sm">
+                  <div className="glass-panel rounded-xl p-3">
                     <input
                       value={newListTitle}
                       onChange={(e) => setNewListTitle(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addList()}
-                      placeholder="Enter list title..."
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      placeholder="Enter list title…"
+                      className="w-full px-3 py-2.5 text-[14px] bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/40 rounded-lg text-[var(--color-on-surface)] placeholder:text-[var(--color-on-surface-variant)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 focus:border-[var(--color-primary)]"
                       autoFocus
                     />
                     <div className="flex items-center gap-2 mt-2">
-                      <Button size="sm" onClick={addList}>
+                      <button
+                        onClick={addList}
+                        className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-lg text-[12px] font-semibold uppercase tracking-[0.06em] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                      >
                         Add list
-                      </Button>
+                      </button>
                       <button
                         onClick={() => {
                           setIsAddingList(false);
                           setNewListTitle("");
                         }}
-                        className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                        className="grid place-items-center w-9 h-9 rounded-lg text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)] hover:bg-[var(--color-surface-container-high)] transition-colors"
                       >
-                        <X className="w-5 h-5" />
+                        <span className="material-symbols-outlined text-[18px]">close</span>
                       </button>
                     </div>
                   </div>
                 ) : (
                   <button
                     onClick={() => setIsAddingList(true)}
-                    className="w-full bg-white/20 hover:bg-white/30 text-white rounded-xl px-4 py-3 flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer"
+                    className="w-full glass-panel hover:border-[var(--color-primary)]/40 text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] rounded-xl px-4 py-4 flex items-center justify-center gap-2 text-[13px] font-semibold uppercase tracking-[0.08em] transition-all"
                   >
-                    <Plus className="w-4 h-4" />
+                    <span className="material-symbols-outlined text-[18px]">add</span>
                     Add another list
                   </button>
                 )}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MoreHorizontal } from "lucide-react";
 import { BoardContent } from "@/components/board/board-content";
 import { CardDetailModal } from "@/components/modals/card-detail-modal";
 import { useCardModal } from "@/store/use-card-modal";
@@ -122,64 +121,82 @@ export default function BoardPage({
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <div className="w-9 h-9 border-2 border-[var(--color-primary)]/30 border-t-[var(--color-primary)] rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!board) return null;
 
+  const totalCards = board.lists.reduce((acc, l) => acc + l.cards.length, 0);
+
   return (
-    <div
-      className="flex-1 flex flex-col min-h-[calc(100vh-3.5rem)]"
-      style={{ backgroundColor: board.color }}
-    >
-      {/* Board header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-black/20">
-        <button
-          onClick={() => router.push("/boards")}
-          className="text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-
-        {isEditingTitle ? (
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={updateTitle}
-            onKeyDown={(e) => e.key === "Enter" && updateTitle()}
-            className="bg-white/20 text-white font-bold text-lg px-2 py-0.5 rounded outline-none focus:bg-white/30"
-            autoFocus
-          />
-        ) : (
-          <h1
-            onClick={() => setIsEditingTitle(true)}
-            className="text-white font-bold text-lg cursor-pointer hover:bg-white/10 px-2 py-0.5 rounded transition-colors"
-          >
-            {board.title}
-          </h1>
-        )}
-
-        <div className="ml-auto">
+    <div className="flex-1 flex flex-col min-h-[calc(100vh-4rem)]">
+      <div className="border-b border-[var(--color-outline-variant)]/20 bg-[var(--color-surface-container-lowest)]/40 backdrop-blur-md">
+        <div className="max-w-[1440px] mx-auto px-5 md:px-10 py-5 flex items-center gap-4">
           <button
-            onClick={deleteBoard}
-            className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded transition-colors cursor-pointer"
+            onClick={() => router.push("/boards")}
+            className="grid place-items-center w-9 h-9 rounded-lg text-[var(--color-on-surface-variant)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-container-high)] transition-colors"
+            title="Back to boards"
           >
-            <MoreHorizontal className="w-5 h-5" />
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
+
+          <span
+            className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]"
+            style={{ backgroundColor: board.color, color: board.color }}
+          />
+
+          {isEditingTitle ? (
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={updateTitle}
+              onKeyDown={(e) => e.key === "Enter" && updateTitle()}
+              className="bg-[var(--color-surface-container)] font-display font-semibold text-[20px] text-[var(--color-on-surface)] px-3 py-1 rounded-lg outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 border border-[var(--color-outline-variant)]/40"
+              autoFocus
+            />
+          ) : (
+            <h1
+              onClick={() => setIsEditingTitle(true)}
+              className="font-display font-semibold text-[22px] text-[var(--color-on-surface)] cursor-pointer hover:bg-[var(--color-surface-container-high)] px-3 py-1 rounded-lg transition-colors tracking-[-0.01em]"
+            >
+              {board.title}
+            </h1>
+          )}
+
+          <div className="hidden md:flex items-center gap-3 ml-2 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-on-surface-variant)]">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[14px] text-[var(--color-primary)]">view_column</span>
+              {board.lists.length} lists
+            </span>
+            <span className="opacity-40">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[14px] text-[var(--color-primary)]">style</span>
+              {totalCards} cards
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={deleteBoard}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-colors"
+              title="Delete board"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Board content with lists */}
       <BoardContent
         boardId={boardId}
         initialLists={board.lists}
         onRefresh={fetchBoard}
       />
 
-      {/* Card detail modal */}
       {cardModal.isOpen && cardModal.id && (
         <CardDetailModal
           cardId={cardModal.id}

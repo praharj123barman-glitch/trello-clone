@@ -4,8 +4,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4">
-      {children}
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-[var(--color-background)]">
+      <div className="absolute inset-0 aurora" />
+      <div className="absolute inset-0 grid-noise opacity-50" />
+      <div className="relative z-10 w-full">{children}</div>
     </div>
   );
 }
