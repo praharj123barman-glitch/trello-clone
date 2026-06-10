@@ -46,18 +46,6 @@ export default async function LandingPage() {
 
         <main className="max-w-[1280px] mx-auto px-6 md:px-10 pt-20 md:pt-28 pb-24">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--color-outline-variant)]/40 bg-[var(--color-surface-container)]/60 backdrop-blur-md mb-8">
-              <span
-                className="material-symbols-outlined text-[14px] text-[var(--color-tertiary)]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                auto_awesome
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-on-surface-variant)]">
-                Premium Workspace · v2.0
-              </span>
-            </div>
-
             <h1 className="font-display font-semibold text-[44px] sm:text-[64px] md:text-[80px] lg:text-[96px] leading-[1.02] tracking-[-0.04em] text-[var(--color-on-surface)]">
               Project work,{" "}
               <span className="italic font-medium bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-tertiary)]">
